@@ -34,8 +34,8 @@ import {
   Languages,
   UserPlus,
   Pencil,
-  QrCode,
   Receipt,
+  HelpCircle,
 } from "lucide-react";
 
 /* ===========================================
@@ -66,458 +66,46 @@ const CHARGE_ITEM = {
   optionsEn: [],
 };
 
-// ユーザー様ご指定の初期データ
 const INITIAL_MENU_DATA = [
-  {
-    id: "Z6SForpMTyQkWXGRjPtE",
-    category: "１、アルコール",
-    price: 790,
-    name: "コロナ",
-    nameEn: "Corona Beer",
-    isSoldOut: false,
-    options: [],
-    optionsEn: [],
-  },
-  {
-    id: "hXQsSVsPyV33BZR7yY4d",
-    price: 750,
-    name: "ハイネケン",
-    nameEn: "Heineken",
-    category: "１、アルコール",
-    options: [],
-    optionsEn: [],
-    isSoldOut: false,
-  },
-  {
-    id: "zwYIoh8KOR9mIpiPSqA2",
-    name: "ハイボール（角）",
-    nameEn: "Highball (Suntory Kaku)",
-    isSoldOut: false,
-    options: [],
-    optionsEn: [],
-    price: 650,
-    category: "１、アルコール",
-  },
-  {
-    id: "olkrbdbBbQZkJFNUVK93",
-    price: 700,
-    category: "１、アルコール",
-    isSoldOut: false,
-    name: "ハウスワイン赤",
-    nameEn: "House Wine (Red)",
-    options: [],
-    optionsEn: [],
-  },
-  {
-    id: "bFZLWaZYwPP8BlH2kiG8",
-    options: [],
-    optionsEn: [],
-    name: "ハウスワイン白",
-    nameEn: "House Wine (White)",
-    price: 700,
-    isSoldOut: false,
-    category: "１、アルコール",
-  },
-  {
-    id: "2bpnlxhajlb3xCGTCUBT",
-    isSoldOut: false,
-    category: "２、テキーラ",
-    name: "A,(1800)セン・オチョシエント・アネホ・レゼルバ(熟成）",
-    nameEn: "1800 Añejo Reserva",
-    price: 1200,
-    options: [
-      "ハイボール",
-      "ハーフロック",
-      "ロック",
-      "ストレート",
-      "トニック割：+50",
-    ],
-    optionsEn: [
-      "Highball",
-      "Half Rock",
-      "On the Rocks",
-      "Straight",
-      "with Tonic: +50",
-    ],
-  },
-  {
-    id: "P0edpG0zoS9rDtCLe9bE",
-    category: "２、テキーラ",
-    price: 1500,
-    name: "A,ドンフリオ・アニェホ（熟成）",
-    nameEn: "Don Julio Añejo",
-    isSoldOut: false,
-    options: [
-      "ハイボール",
-      "ハーフロック",
-      "ロック",
-      "ストレート",
-      "トニック割：+50",
-    ],
-    optionsEn: [
-      "Highball",
-      "Half Rock",
-      "On the Rocks",
-      "Straight",
-      "with Tonic: +50",
-    ],
-  },
-  {
-    id: "75xAC6MTnjRl61kV6SDm",
-    category: "２、テキーラ",
-    name: "B,チャムコス・ブランコ",
-    nameEn: "Chamucos Blanco",
-    price: 1200,
-    isSoldOut: false,
-    options: [
-      "ハイボール",
-      "ハーフロック",
-      "ロック",
-      "ストレート",
-      "トニック割：+50",
-    ],
-    optionsEn: [
-      "Highball",
-      "Half Rock",
-      "On the Rocks",
-      "Straight",
-      "with Tonic: +50",
-    ],
-  },
-  {
-    id: "WA2r531CqJFRHTDdT0jl",
-    price: 900,
-    category: "２、テキーラ",
-    name: "B、ドン・フリオ・ブランコ",
-    nameEn: "Don Julio Blanco",
-    isSoldOut: false,
-    options: [
-      "ハイボール",
-      "ハーフロック",
-      "ロック",
-      "ストレート",
-      "トニック割：+50",
-    ],
-    optionsEn: [
-      "Highball",
-      "Half Rock",
-      "On the Rocks",
-      "Straight",
-      "with Tonic: +50",
-    ],
-  },
-  {
-    id: "bAc5CjWwvvDH0RU8fYcy",
-    price: 900,
-    name: "R,エスポロン・テキーラ・レポサド",
-    nameEn: "Espolón Reposado",
-    category: "２、テキーラ",
-    isSoldOut: false,
-    options: [
-      "ハイボール",
-      "ハーフロック",
-      "ロック",
-      "ストレート",
-      "トニック割：+50",
-    ],
-    optionsEn: [
-      "Highball",
-      "Half Rock",
-      "On the Rocks",
-      "Straight",
-      "with Tonic: +50",
-    ],
-  },
-  {
-    id: "sO7BJUMqcPZJsT1fESmv",
-    options: [],
-    optionsEn: [],
-    isSoldOut: false,
-    category: "３、ソフトドリンク",
-    price: 600,
-    name: "オレンジジュース",
-    nameEn: "Orange Juice",
-  },
-  {
-    id: "rKidkeBTk97nGmq9AV8o",
-    isSoldOut: false,
-    category: "３、ソフトドリンク",
-    price: 600,
-    options: [],
-    optionsEn: [],
-    name: "コーラー",
-    nameEn: "Coca Cola",
-  },
-  {
-    id: "IUWTpu2sQR0ugxQxhMjm",
-    options: [],
-    optionsEn: [],
-    name: "烏龍茶",
-    nameEn: "Oolong Tea",
-    category: "３、ソフトドリンク",
-    isSoldOut: false,
-    price: 600,
-  },
-  {
-    id: "ID_MOCKTAIL_01",
-    options: [],
-    optionsEn: [],
-    name: "モクテル",
-    nameEn: "Mocktail",
-    category: "３、ソフトドリンク",
-    isSoldOut: false,
-    price: 900,
-  },
-  {
-    id: "W6DgMzIPiPLH5ON7XgHe",
-    price: 1780,
-    isSoldOut: false,
-    name: "１、タコス３種盛り",
-    nameEn: "3 Tacos Platter",
-    category: "４、タコス",
-    options: [],
-    optionsEn: [],
-  },
-  {
-    id: "waFFM8URVrQR0AJ1Nsmf",
-    isSoldOut: false,
-    options: [],
-    optionsEn: [],
-    price: 520,
-    category: "４、タコス",
-    name: "2,カルニータス(タコス）",
-    nameEn: "Carnitas Taco",
-  },
-  {
-    id: "pwsdDEhcZuTfbUqUzx2E",
-    options: [],
-    optionsEn: [],
-    price: 650,
-    name: "3,牛タンのレングア（タコス）",
-    nameEn: "Beef Tongue Taco",
-    category: "４、タコス",
-    isSoldOut: false,
-  },
-  {
-    id: "rUBkfCVHJn4LGQExYX0q",
-    isSoldOut: false,
-    price: 820,
-    name: "4,和牛のカルネ・アサーダ（タコス）",
-    nameEn: "Wagyu Carne Asada Taco",
-    category: "４、タコス",
-    options: [],
-    optionsEn: [],
-  },
-  {
-    id: "ikLXUQkB4IRnsTJzN28t",
-    options: [],
-    optionsEn: [],
-    name: "５、海老アボカド（タコス）",
-    nameEn: "Shrimp & Avocado Taco",
-    category: "４、タコス",
-    price: 670,
-    isSoldOut: false,
-  },
-  {
-    id: "S3HpIm8w8jNCeCobzk8I",
-    name: "1,春菊のライムサラダ",
-    nameEn: "Shungiku Lime Salad",
-    category: "５、サラダ",
-    price: 810,
-    isSoldOut: false,
-    options: ["フルサイズ", "ハーフサイズ：-200"],
-    optionsEn: ["Full Size", "Half Size: -200"],
-  },
-  {
-    id: "0dudLzhoreR7n6G2WwLm",
-    name: "２、メキシカングリーンサラダ",
-    nameEn: "Mexican Green Salad",
-    price: 980,
-    isSoldOut: false,
-    category: "５、サラダ",
-    options: ["フルサイズ", "ハーフサイズ：-200"],
-    optionsEn: ["Full Size", "Half Size: -200"],
-  },
-  {
-    id: "5SxEJEWXvcRffBe0zMMX",
-    options: [],
-    optionsEn: [],
-    category: "６、サイドメニュー＆小皿",
-    price: 550,
-    isSoldOut: false,
-    name: "おつまみケサディーヤ１枚",
-    nameEn: "Quesadilla (1pc)",
-  },
-  {
-    id: "du5KtMdFJqBxM1DVy5Lm",
-    name: "おつまみレングア",
-    nameEn: "Beef Tongue Appetizer",
-    isSoldOut: false,
-    options: [],
-    optionsEn: [],
-    price: 580,
-    category: "６、サイドメニュー＆小皿",
-  },
-  {
-    id: "slSx6yaiNOwATE2cWAoX",
-    isSoldOut: false,
-    price: 100,
-    options: [],
-    optionsEn: [],
-    category: "６、サイドメニュー＆小皿",
-    name: "トルティーヤ（生地のみ）",
-    nameEn: "Tortilla",
-  },
-  {
-    id: "Mr4wHMA2tyJgZI7vZ4fq",
-    options: [],
-    optionsEn: [],
-    isSoldOut: false,
-    name: "サルサで食べるトルティーヤチップス",
-    nameEn: "Tortilla Chips with Salsa",
-    price: 530,
-    category: "６、サイドメニュー＆小皿",
-  },
-  {
-    id: "A1YdpNmwW2o7y846qJ7p",
-    isSoldOut: false,
-    price: 710,
-    name: "ジョロキアソーセージ（5本）",
-    nameEn: "Ghost Pepper Sausage (5pcs)",
-    category: "６、サイドメニュー＆小皿",
-    options: [],
-    optionsEn: [],
-  },
-  {
-    id: "VOG5hgxtfKu3iNLGE0kd",
-    category: "７、ライス",
-    name: "小盛りの〆カレー",
-    nameEn: "Mini Curry",
-    price: 450,
-    isSoldOut: false,
-    options: [],
-    optionsEn: [],
-  },
-  {
-    id: "c4Ps6AADdT9NZtur6181",
-    name: "ハラペーニョ",
-    nameEn: "Jalapeño",
-    isSoldOut: false,
-    options: [],
-    optionsEn: [],
-    price: 300,
-    category: "６、サイドメニュー＆小皿",
-  },
-  {
-    id: "EM6WBsxrQuRy7gF5maPM",
-    options: [],
-    optionsEn: [],
-    isSoldOut: false,
-    category: "６、サイドメニュー＆小皿",
-    price: 1200,
-    name: "ナチョス",
-    nameEn: "Nachos",
-  },
-  {
-    id: "lPkiIMFzAuWNCMLiLHYt",
-    category: "６、サイドメニュー＆小皿",
-    price: 680,
-    options: [],
-    optionsEn: [],
-    name: "平飼い卵のベーコンエッグ",
-    nameEn: "Free-range Bacon & Eggs",
-    isSoldOut: false,
-  },
-  {
-    id: "nZnQ1KALECqRnT4vMW13",
-    name: "１、カルニータス・ライス",
-    nameEn: "Carnitas Rice",
-    price: 1350,
-    isSoldOut: false,
-    category: "７、ライス",
-    options: ["普通もり", "大盛り:+150"],
-    optionsEn: ["Regular", "Large: +150"],
-  },
-  {
-    id: "z4wlsaUCrY39VFCMCe1E",
-    price: 1420,
-    isSoldOut: false,
-    category: "７、ライス",
-    name: "２、牛タンのレングアライス",
-    nameEn: "Beef Tongue Rice",
-    options: ["普通盛り", "大盛り：+150"],
-    optionsEn: ["Regular", "Large: +150"],
-  },
-  {
-    id: "noQSh4ZDTbgW7NQl2FPB",
-    category: "７、ライス",
-    name: "３、和牛のステーキライス",
-    nameEn: "Wagyu Steak Rice",
-    price: 1700,
-    isSoldOut: false,
-    options: ["普通盛り", "大盛り：+150"],
-    optionsEn: ["Regular", "Large: +150"],
-  },
-  {
-    id: "ID_BROCCOLI_01",
-    options: [],
-    optionsEn: [],
-    name: "ブロッコリーのクミン炒め",
-    nameEn: "Stir-fried Broccoli with Cumin",
-    category: "６、サイドメニュー＆小皿",
-    isSoldOut: false,
-    price: 680,
-  },
-  {
-    id: "ID_CHIMI_01",
-    options: [],
-    optionsEn: [],
-    name: "チミチャンガとミルクアイス",
-    nameEn: "Chimichanga & Ice Cream",
-    category: "9、デザート",
-    isSoldOut: false,
-    price: 670,
-  },
-  {
-    id: "ID_ICE_01",
-    options: [],
-    optionsEn: [],
-    name: "自家製ミルクアイス",
-    nameEn: "Homemade Milk Ice Cream",
-    category: "9、デザート",
-    isSoldOut: false,
-    price: 450,
-  },
-  {
-    id: "ID_FISH_01",
-    options: [],
-    optionsEn: [],
-    name: "フィッシュフリートたら",
-    nameEn: "Fried Fish (Cod)",
-    category: "６、サイドメニュー＆小皿",
-    isSoldOut: false,
-    price: 960,
-  },
-  {
-    id: "ID_DIRTY_01",
-    options: [],
-    optionsEn: [],
-    name: "ダーティーフリート",
-    nameEn: "Dirty Fries",
-    category: "６、サイドメニュー＆小皿",
-    isSoldOut: false,
-    price: 980,
-  },
-  {
-    id: "ID_JALA_FRIT_01",
-    options: [],
-    optionsEn: [],
-    name: "ハラペーニョフリート",
-    nameEn: "Fried Jalapeños",
-    category: "６、サイドメニュー＆小皿",
-    isSoldOut: false,
-    price: 680,
-  },
+  { id: "Z6SForpMTyQkWXGRjPtE", category: "１、アルコール", price: 790, name: "コロナ", nameEn: "Corona Beer", isSoldOut: false, options: [], optionsEn: [] },
+  { id: "hXQsSVsPyV33BZR7yY4d", price: 750, name: "ハイネケン", nameEn: "Heineken", category: "１、アルコール", options: [], optionsEn: [], isSoldOut: false },
+  { id: "zwYIoh8KOR9mIpiPSqA2", name: "ハイボール（角）", nameEn: "Highball (Suntory Kaku)", isSoldOut: false, options: [], optionsEn: [], price: 650, category: "１、アルコール" },
+  { id: "olkrbdbBbQZkJFNUVK93", price: 700, category: "１、アルコール", isSoldOut: false, name: "ハウスワイン赤", nameEn: "House Wine (Red)", options: [], optionsEn: [] },
+  { id: "bFZLWaZYwPP8BlH2kiG8", options: [], optionsEn: [], name: "ハウスワイン白", nameEn: "House Wine (White)", price: 700, isSoldOut: false, category: "１、アルコール" },
+  { id: "2bpnlxhajlb3xCGTCUBT", isSoldOut: false, category: "２、テキーラ", name: "A,(1800)セン・オチョシエント・アネホ・レゼルバ(熟成）", nameEn: "1800 Añejo Reserva", price: 1200, options: ["ハイボール", "ハーフロック", "ロック", "ストレート", "トニック割：+50"], optionsEn: ["Highball", "Half Rock", "On the Rocks", "Straight", "with Tonic: +50"] },
+  { id: "P0edpG0zoS9rDtCLe9bE", category: "２、テキーラ", price: 1500, name: "A,ドンフリオ・アニェホ（熟成）", nameEn: "Don Julio Añejo", isSoldOut: false, options: ["ハイボール", "ハーフロック", "ロック", "ストレート", "トニック割：+50"], optionsEn: ["Highball", "Half Rock", "On the Rocks", "Straight", "with Tonic: +50"] },
+  { id: "75xAC6MTnjRl61kV6SDm", category: "２、テキーラ", name: "B,チャムコス・ブランコ", nameEn: "Chamucos Blanco", price: 1200, isSoldOut: false, options: ["ハイボール", "ハーフロック", "ロック", "ストレート", "トニック割：+50"], optionsEn: ["Highball", "Half Rock", "On the Rocks", "Straight", "with Tonic: +50"] },
+  { id: "WA2r531CqJFRHTDdT0jl", price: 900, category: "２、テキーラ", name: "B、ドン・フリオ・ブランコ", nameEn: "Don Julio Blanco", isSoldOut: false, options: ["ハイボール", "ハーフロック", "ロック", "ストレート", "トニック割：+50"], optionsEn: ["Highball", "Half Rock", "On the Rocks", "Straight", "with Tonic: +50"] },
+  { id: "bAc5CjWwvvDH0RU8fYcy", price: 900, name: "R,エスポロン・テキーラ・レポサド", nameEn: "Espolón Reposado", category: "２、テキーラ", isSoldOut: false, options: ["ハイボール", "ハーフロック", "ロック", "ストレート", "トニック割：+50"], optionsEn: ["Highball", "Half Rock", "On the Rocks", "Straight", "with Tonic: +50"] },
+  { id: "sO7BJUMqcPZJsT1fESmv", options: [], optionsEn: [], isSoldOut: false, category: "３、ソフトドリンク", price: 600, name: "オレンジジュース", nameEn: "Orange Juice" },
+  { id: "rKidkeBTk97nGmq9AV8o", isSoldOut: false, category: "３、ソフトドリンク", price: 600, options: [], optionsEn: [], name: "コーラー", nameEn: "Coca Cola" },
+  { id: "IUWTpu2sQR0ugxQxhMjm", options: [], optionsEn: [], name: "烏龍茶", nameEn: "Oolong Tea", category: "３、ソフトドリンク", isSoldOut: false, price: 600 },
+  { id: "ID_MOCKTAIL_01", options: [], optionsEn: [], name: "モクテル", nameEn: "Mocktail", category: "３、ソフトドリンク", isSoldOut: false, price: 900 },
+  { id: "W6DgMzIPiPLH5ON7XgHe", price: 1780, isSoldOut: false, name: "１、タコス３種盛り", nameEn: "3 Tacos Platter", category: "４、タコス", options: [], optionsEn: [] },
+  { id: "waFFM8URVrQR0AJ1Nsmf", isSoldOut: false, options: [], optionsEn: [], price: 520, category: "４、タコス", name: "2,カルニータス(タコス）", nameEn: "Carnitas Taco" },
+  { id: "pwsdDEhcZuTfbUqUzx2E", options: [], optionsEn: [], price: 650, name: "3,牛タンのレングア（タコス）", nameEn: "Beef Tongue Taco", category: "４、タコス", isSoldOut: false },
+  { id: "rUBkfCVHJn4LGQExYX0q", isSoldOut: false, price: 820, name: "4,和牛のカルネ・アサーダ（タコス）", nameEn: "Wagyu Carne Asada Taco", category: "４、タコス", options: [], optionsEn: [] },
+  { id: "ikLXUQkB4IRnsTJzN28t", options: [], optionsEn: [], name: "５、海老アボカド（タコス）", nameEn: "Shrimp & Avocado Taco", category: "４、タコス", price: 670, isSoldOut: false },
+  { id: "S3HpIm8w8jNCeCobzk8I", name: "1,春菊のライムサラダ", nameEn: "Shungiku Lime Salad", category: "５、サラダ", price: 810, isSoldOut: false, options: ["フルサイズ", "ハーフサイズ：-200"], optionsEn: ["Full Size", "Half Size: -200"] },
+  { id: "0dudLzhoreR7n6G2WwLm", name: "２、メキシカングリーンサラダ", nameEn: "Mexican Green Salad", price: 980, isSoldOut: false, category: "５、サラダ", options: ["フルサイズ", "ハーフサイズ：-200"], optionsEn: ["Full Size", "Half Size: -200"] },
+  { id: "5SxEJEWXvcRffBe0zMMX", options: [], optionsEn: [], category: "６、サイドメニュー＆小皿", price: 550, isSoldOut: false, name: "おつまみケサディーヤ１枚", nameEn: "Quesadilla (1pc)" },
+  { id: "du5KtMdFJqBxM1DVy5Lm", name: "おつまみレングア", nameEn: "Beef Tongue Appetizer", isSoldOut: false, options: [], optionsEn: [], price: 580, category: "６、サイドメニュー＆小皿" },
+  { id: "slSx6yaiNOwATE2cWAoX", isSoldOut: false, price: 100, options: [], optionsEn: [], category: "６、サイドメニュー＆小皿", name: "トルティーヤ（生地のみ）", nameEn: "Tortilla" },
+  { id: "Mr4wHMA2tyJgZI7vZ4fq", options: [], optionsEn: [], isSoldOut: false, name: "サルサで食べるトルティーヤチップス", nameEn: "Tortilla Chips with Salsa", price: 530, category: "６、サイドメニュー＆小皿" },
+  { id: "A1YdpNmwW2o7y846qJ7p", isSoldOut: false, price: 710, name: "ジョロキアソーセージ（5本）", nameEn: "Ghost Pepper Sausage (5pcs)", category: "６、サイドメニュー＆小皿", options: [], optionsEn: [] },
+  { id: "VOG5hgxtfKu3iNLGE0kd", category: "７、ライス", name: "小盛りの〆カレー", nameEn: "Mini Curry", price: 450, isSoldOut: false, options: [], optionsEn: [] },
+  { id: "c4Ps6AADdT9NZtur6181", name: "ハラペーニョ", nameEn: "Jalapeño", isSoldOut: false, options: [], optionsEn: [], price: 300, category: "６、サイドメニュー＆小皿" },
+  { id: "EM6WBsxrQuRy7gF5maPM", options: [], optionsEn: [], isSoldOut: false, category: "６、サイドメニュー＆小皿", price: 1200, name: "ナチョス", nameEn: "Nachos" },
+  { id: "lPkiIMFzAuWNCMLiLHYt", category: "６、サイドメニュー＆小皿", price: 680, options: [], optionsEn: [], name: "平飼い卵のベーコンエッグ", nameEn: "Free-range Bacon & Eggs", isSoldOut: false },
+  { id: "nZnQ1KALECqRnT4vMW13", name: "１、カルニータス・ライス", nameEn: "Carnitas Rice", price: 1350, isSoldOut: false, category: "７、ライス", options: ["普通もり", "大盛り:+150"], optionsEn: ["Regular", "Large: +150"] },
+  { id: "z4wlsaUCrY39VFCMCe1E", price: 1420, isSoldOut: false, category: "７、ライス", name: "２、牛タンのレングアライス", nameEn: "Beef Tongue Rice", options: ["普通盛り", "大盛り：+150"], optionsEn: ["Regular", "Large: +150"] },
+  { id: "noQSh4ZDTbgW7NQl2FPB", category: "７、ライス", name: "３、和牛のステーキライス", nameEn: "Wagyu Steak Rice", price: 1700, isSoldOut: false, options: ["普通盛り", "大盛り：+150"], optionsEn: ["Regular", "Large: +150"] },
+  { id: "ID_BROCCOLI_01", options: [], optionsEn: [], name: "ブロッコリーのクミン炒め", nameEn: "Stir-fried Broccoli with Cumin", category: "６、サイドメニュー＆小皿", isSoldOut: false, price: 680 },
+  { id: "ID_CHIMI_01", options: [], optionsEn: [], name: "チミチャンガとミルクアイス", nameEn: "Chimichanga & Ice Cream", category: "9、デザート", isSoldOut: false, price: 670 },
+  { id: "ID_ICE_01", options: [], optionsEn: [], name: "自家製ミルクアイス", nameEn: "Homemade Milk Ice Cream", category: "9、デザート", isSoldOut: false, price: 450 },
+  { id: "ID_FISH_01", options: [], optionsEn: [], name: "フィッシュフリートたら", nameEn: "Fried Fish (Cod)", category: "６、サイドメニュー＆小皿", isSoldOut: false, price: 960 },
+  { id: "ID_DIRTY_01", options: [], optionsEn: [], name: "ダーティーフリート", nameEn: "Dirty Fries", category: "６、サイドメニュー＆小皿", isSoldOut: false, price: 980 },
+  { id: "ID_JALA_FRIT_01", options: [], optionsEn: [], name: "ハラペーニョフリート", nameEn: "Fried Jalapeños", category: "６、サイドメニュー＆小皿", isSoldOut: false, price: 680 },
 ];
 
 const parseOption = (optionStr) => {
@@ -558,6 +146,12 @@ const TRANSLATIONS = {
     createNew: "新規作成モード",
     staffLink: "スタッフ用 (全機能)",
     guestLink: "客席用 (注文のみ)",
+    tutorialTitle: "注文の使い方",
+    tutStep1: "1. 好きな商品を選ぶ",
+    tutStep2: "2. カートを確認する",
+    tutStep3: "3. 注文を確定する",
+    startOrder: "はじめる",
+    help: "使い方",
   },
   en: {
     back: "Back",
@@ -583,6 +177,12 @@ const TRANSLATIONS = {
     createNew: "Create New",
     staffLink: "For Staff (Full Access)",
     guestLink: "For Guest (Order Only)",
+    tutorialTitle: "How to Order",
+    tutStep1: "1. Select your items",
+    tutStep2: "2. Check your cart",
+    tutStep3: "3. Place your order",
+    startOrder: "Start",
+    help: "Help",
   },
 };
 
@@ -591,7 +191,7 @@ const TRANSLATIONS = {
    ===========================================
 */
 
-// --- 伝票詳細モーダル (新規追加: レジ入力用) ---
+// --- 伝票詳細モーダル (レジ入力用) ---
 const TableDetailModal = ({
   tableNumber,
   orders,
@@ -599,13 +199,11 @@ const TableDetailModal = ({
   onCheckout,
   lang,
 }) => {
-  // テーブルの未会計注文を抽出
   const tableOrders = orders.filter(
     (o) =>
       String(o.tableNumber) === String(tableNumber) && !o.isPaid && !o.isDeleted
   );
 
-  // 商品を集約（同じ商品はまとめる）
   const aggregatedItems = [];
   tableOrders.forEach((order) => {
     order.items.forEach((item) => {
@@ -613,7 +211,7 @@ const TableDetailModal = ({
       if (existing) {
         existing.quantity += item.quantity;
       } else {
-        aggregatedItems.push({ ...item }); // コピーをpush
+        aggregatedItems.push({ ...item });
       }
     });
   });
@@ -623,7 +221,6 @@ const TableDetailModal = ({
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[150] p-4 backdrop-blur-md">
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-200">
-        {/* Header */}
         <div className="bg-orange-500 text-white p-4 flex justify-between items-center">
           <h3 className="font-black text-xl flex items-center">
             <Receipt className="mr-2" /> Table {tableNumber}
@@ -633,7 +230,6 @@ const TableDetailModal = ({
           </button>
         </div>
 
-        {/* List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
           <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
             注文リスト (レジ入力用)
@@ -670,7 +266,6 @@ const TableDetailModal = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className="p-4 bg-white border-t-2 border-gray-100">
           <div className="flex justify-between items-end mb-4">
             <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">
@@ -922,7 +517,7 @@ const ManageMenuModal = ({ onClose, menuData, onSave, onDelete, lang }) => {
   );
 };
 
-// --- 招待用モーダル ---
+// --- 招待用モーダル (外部API使用版) ---
 const InviteModal = ({ hostId, onClose, lang }) => {
   const [copied, setCopied] = useState(false);
   const [targetTable, setTargetTable] = useState("STAFF");
@@ -931,6 +526,7 @@ const InviteModal = ({ hostId, onClose, lang }) => {
   const inviteUrl = `${window.location.origin}${
     window.location.pathname
   }?join=${hostId}${targetTable !== "STAFF" ? `&table=${targetTable}` : ""}`;
+  
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
     inviteUrl
   )}&ecc=H`;
@@ -1002,7 +598,7 @@ const InviteModal = ({ hostId, onClose, lang }) => {
         <div className="bg-white p-4 border-4 border-gray-50 rounded-2xl shadow-inner mb-6 flex flex-col justify-center items-center">
           <img
             src={qrCodeUrl}
-            alt="QR"
+            alt="QR Code"
             className="w-48 h-48 object-contain mix-blend-multiply"
           />
 
@@ -1123,14 +719,14 @@ const OptionModal = ({ item, onClose, onConfirm, lang }) => {
   );
 };
 
-// --- テーブル選択画面 (修正: 詳細モーダルを開くロジックを追加) ---
+// --- テーブル選択画面 ---
 const TableSelectionView = ({
   onSelectTable,
   orders,
   onCheckoutTable,
   lang,
 }) => {
-  const [detailTable, setDetailTable] = useState(null); // 詳細表示中のテーブル番号
+  const [detailTable, setDetailTable] = useState(null);
   const t = TRANSLATIONS[lang];
 
   const tableStatus = useMemo(() => {
@@ -1166,7 +762,6 @@ const TableSelectionView = ({
           <button
             key={num}
             onClick={() => {
-              // 注文がある場合は詳細モーダルを開く、ない場合はテーブル選択(注文追加)へ
               if (tableStatus[num]) {
                 setDetailTable(num);
               } else onSelectTable(num);
@@ -1268,16 +863,24 @@ const OrderView = ({
   onOrderSubmit,
   lang,
   isGuest,
+  toggleLang,
 }) => {
   const [cart, setCart] = useState([]);
   const [activeCat, setActiveCat] = useState("ALL");
   const [optItem, setOptItem] = useState(null);
   const [showCharge, setShowCharge] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(isGuest); // ゲストモード時に初回ポップアップ表示
+
   const t = TRANSLATIONS[lang];
   const categories = useMemo(() => {
     const cats = new Set(menuData.map((i) => i.category));
     return ["ALL", ...Array.from(cats).sort()];
   }, [menuData]);
+
+  // カメレオンUI (言語設定に応じたテーマカラー)
+  const theme = lang === 'en' 
+    ? { primary: 'bg-red-600', header: 'bg-red-600', submit: 'bg-rose-600', accent: 'bg-red-500' }
+    : { primary: 'bg-blue-600', header: 'bg-blue-600', submit: 'bg-green-600', accent: 'bg-orange-500' };
 
   const addToCart = (item, optStr = null) => {
     const parsed = optStr ? parseOption(optStr) : { label: "", priceDiff: 0 };
@@ -1327,7 +930,36 @@ const OrderView = ({
   const total = cart.reduce((s, i) => s + i.finalPrice * i.quantity, 0);
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-screen flex flex-col bg-white transition-colors duration-500">
+      {/* チュートリアルモーダル */}
+      {showTutorial && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[300] p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center animate-in zoom-in duration-300">
+            <h3 className="font-black text-2xl text-gray-800 mb-6">{t.tutorialTitle}</h3>
+            <div className="space-y-6 text-left mb-8">
+              <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl">
+                <div className={`p-3 rounded-full text-white ${theme.primary}`}><Utensils size={24} /></div>
+                <span className="font-bold text-gray-700 text-lg">{t.tutStep1}</span>
+              </div>
+              <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl">
+                <div className={`p-3 rounded-full text-white ${theme.primary}`}><ShoppingCart size={24} /></div>
+                <span className="font-bold text-gray-700 text-lg">{t.tutStep2}</span>
+              </div>
+              <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl">
+                <div className={`p-3 rounded-full text-white ${theme.submit}`}><CheckCircle size={24} /></div>
+                <span className="font-bold text-gray-700 text-lg">{t.tutStep3}</span>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowTutorial(false)} 
+              className={`w-full py-4 rounded-2xl font-black text-xl text-white shadow-lg active:scale-95 transition-all ${theme.primary}`}
+            >
+              {t.startOrder}
+            </button>
+          </div>
+        </div>
+      )}
+
       {optItem && (
         <OptionModal
           item={optItem}
@@ -1344,19 +976,24 @@ const OrderView = ({
         />
       )}
 
-      <div className="p-4 bg-blue-600 text-white flex justify-between items-center shadow-lg sticky top-0 z-50">
+      {/* ゲスト用とスタッフ用で変わるヘッダー */}
+      <div className={`p-4 ${theme.header} text-white flex justify-between items-center shadow-lg sticky top-0 z-50 transition-colors duration-500`}>
         {!isGuest ? (
           <button
             onClick={onBackToTables}
-            className="font-black flex items-center active:scale-95 transition text-sm bg-blue-700 px-3 py-1.5 rounded-xl"
+            className={`font-black flex items-center active:scale-95 transition text-sm px-3 py-1.5 rounded-xl bg-black/20 hover:bg-black/30`}
           >
             <ChevronLeft size={18} className="mr-1" />
             {t.back}
           </button>
         ) : (
-          <div className="text-xs font-black bg-blue-700 px-2 py-1 rounded-lg">
-            GUEST MODE
-          </div>
+          <button 
+            onClick={() => setShowTutorial(true)}
+            className="flex items-center font-black text-sm bg-black/20 hover:bg-black/30 px-3 py-1.5 rounded-xl active:scale-95 transition"
+          >
+            <HelpCircle size={18} className="mr-1" />
+            {t.help}
+          </button>
         )}
 
         <div className="font-black text-2xl tracking-tight">
@@ -1364,16 +1001,24 @@ const OrderView = ({
           <span className="text-[10px] ml-1 opacity-60">卓</span>
         </div>
 
-        {!isGuest ? (
-          <button
-            onClick={() => setShowCharge(true)}
-            className="p-2 bg-purple-700 rounded-xl active:scale-90 transition shadow-lg shadow-purple-900/30"
-          >
-            <UserPlus size={20} />
-          </button>
-        ) : (
-          <div className="w-8"></div>
-        )}
+        <div className="flex space-x-2">
+          {isGuest && (
+            <button
+              onClick={toggleLang}
+              className="p-2 bg-black/20 hover:bg-black/30 rounded-xl font-black text-sm transition shadow-lg flex items-center active:scale-90"
+            >
+              <Languages size={18} className="mr-1"/> {lang.toUpperCase()}
+            </button>
+          )}
+          {!isGuest && (
+            <button
+              onClick={() => setShowCharge(true)}
+              className="p-2 bg-black/20 hover:bg-black/30 rounded-xl active:scale-90 transition shadow-lg"
+            >
+              <UserPlus size={20} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex overflow-x-auto p-3 space-x-2 border-b bg-gray-50 scrollbar-hide sticky top-[64px] z-40 shadow-sm">
@@ -1383,7 +1028,7 @@ const OrderView = ({
             onClick={() => setActiveCat(c)}
             className={`px-4 py-2 rounded-full text-xs font-black whitespace-nowrap transition active:scale-95 ${
               activeCat === c
-                ? "bg-orange-500 text-white shadow-lg shadow-orange-100"
+                ? `${theme.accent} text-white shadow-lg`
                 : "bg-white text-gray-400 border border-gray-100"
             }`}
           >
@@ -1406,7 +1051,7 @@ const OrderView = ({
               <span className="font-black text-base leading-tight text-gray-800">
                 {lang === "en" ? item.nameEn || item.name : item.name}
               </span>
-              <span className="text-blue-600 font-black text-xl w-full text-right tracking-tighter">
+              <span className={`font-black text-xl w-full text-right tracking-tighter ${lang === 'en' ? 'text-red-600' : 'text-blue-600'}`}>
                 ･{item.price.toLocaleString()}
               </span>
             </button>
@@ -1436,7 +1081,7 @@ const OrderView = ({
                   </span>
                   <button
                     onClick={() => addToCart(i, i.optionLabel)}
-                    className="text-blue-500 bg-blue-50 p-1.5 rounded-lg active:scale-125 transition-transform"
+                    className={`${lang === 'en' ? 'text-red-600 bg-red-50' : 'text-blue-500 bg-blue-50'} p-1.5 rounded-lg active:scale-125 transition-transform`}
                   >
                     <Plus size={14} />
                   </button>
@@ -1459,9 +1104,9 @@ const OrderView = ({
             setCart([]);
           }}
           disabled={!cart.length}
-          className={`w-full py-5 rounded-3xl font-black text-2xl shadow-2xl flex justify-between px-8 transition active:scale-[0.98] ${
+          className={`w-full py-5 rounded-3xl font-black text-2xl shadow-2xl flex justify-between px-8 transition-all active:scale-[0.98] duration-500 ${
             cart.length > 0
-              ? "bg-green-600 text-white shadow-green-100"
+              ? `${theme.submit} text-white`
               : "bg-gray-100 text-gray-300 shadow-none"
           }`}
         >
@@ -1480,17 +1125,23 @@ export default function App() {
   const [peer, setPeer] = useState(null);
   const [conn, setConn] = useState(null);
   const [myId, setMyId] = useState("");
-  const [lang, setLang] = useState("ja");
   const [showManageMenu, setShowManageMenu] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
 
-  // v8: 管理機能追加・初期データ維持版
+  // Auto-detect language based on browser setting (ja or en)
+  const [lang, setLang] = useState(() => {
+    if (typeof navigator !== "undefined" && navigator.language) {
+      return navigator.language.startsWith("ja") ? "ja" : "en";
+    }
+    return "ja";
+  });
+
   const [menuData, setMenuData] = useState(() => {
-    const s = localStorage.getItem("pos_menu_v8");
+    const s = localStorage.getItem("pos_menu_v9");
     return s ? JSON.parse(s) : INITIAL_MENU_DATA;
   });
   const [orders, setOrders] = useState(() => {
-    const s = localStorage.getItem("pos_orders_v8");
+    const s = localStorage.getItem("pos_orders_v9");
     return s ? JSON.parse(s) : [];
   });
   const [currentTable, setCurrentTable] = useState(null);
@@ -1498,10 +1149,10 @@ export default function App() {
   const connectionsRef = useRef([]);
 
   useEffect(() => {
-    localStorage.setItem("pos_orders_v8", JSON.stringify(orders));
+    localStorage.setItem("pos_orders_v9", JSON.stringify(orders));
   }, [orders]);
   useEffect(() => {
-    localStorage.setItem("pos_menu_v8", JSON.stringify(menuData));
+    localStorage.setItem("pos_menu_v9", JSON.stringify(menuData));
   }, [menuData]);
 
   // PeerJS通信
@@ -1512,7 +1163,7 @@ export default function App() {
       c.on("open", () => {
         c.send({ type: "SYNC_MENU", payload: menuData });
         c.send({ type: "SYNC_ORDERS", payload: orders });
-        c.send({ type: "SYNC_LANG", payload: lang });
+        // NOTE: We don't force 'lang' sync on guests, let them choose.
       });
       c.on("data", (data) => {
         if (data.type === "NEW_ORDER")
@@ -1532,7 +1183,7 @@ export default function App() {
     };
     peer.on("connection", handleConn);
     return () => peer.off("connection", handleConn);
-  }, [role, peer, orders, menuData, lang]);
+  }, [role, peer, orders, menuData]);
 
   const handleStartHost = () => {
     const p = new Peer();
@@ -1587,10 +1238,7 @@ export default function App() {
   const toggleLang = () => {
     const nextLang = lang === "ja" ? "en" : "ja";
     setLang(nextLang);
-    if (role === "host")
-      connectionsRef.current.forEach((c) => {
-        if (c.open) c.send({ type: "SYNC_LANG", payload: nextLang });
-      });
+    // Don't force language on connected clients automatically, let individual guests choose.
   };
 
   useEffect(() => {
@@ -1616,7 +1264,6 @@ export default function App() {
         c.on("data", (d) => {
           if (d.type === "SYNC_MENU") setMenuData(d.payload);
           if (d.type === "SYNC_ORDERS" && !tableParam) setOrders(d.payload);
-          if (d.type === "SYNC_LANG") setLang(d.payload);
         });
       });
     }
@@ -1630,7 +1277,7 @@ export default function App() {
             POS <span className="text-blue-600 uppercase">Link</span>
           </h1>
           <p className="text-gray-400 font-black uppercase tracking-[0.3em] text-xs">
-            Menu Management Edition
+            Inbound & Guest Ready
           </p>
         </div>
         <div className="w-full max-w-xs space-y-4">
@@ -1654,7 +1301,6 @@ export default function App() {
                   c.on("data", (d) => {
                     if (d.type === "SYNC_MENU") setMenuData(d.payload);
                     if (d.type === "SYNC_ORDERS") setOrders(d.payload);
-                    if (d.type === "SYNC_LANG") setLang(d.payload);
                   });
                 });
               }
@@ -1780,6 +1426,7 @@ export default function App() {
             onBackToTables={() => setCurrentTable(null)}
             onOrderSubmit={handleOrderSubmit}
             isGuest={role === "guest"}
+            toggleLang={toggleLang}
           />
         )}
       </div>
