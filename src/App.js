@@ -7,7 +7,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   Utensils, ShoppingCart, Trash, CheckCircle, Plus, Minus, X,
   ChevronLeft, Settings, Monitor, Smartphone, Link, Share2,
-  UserPlus, Pencil, Receipt, HelpCircle, Languages, Image as ImageIcon, History, Clock, FileText
+  UserPlus, Pencil, Receipt, HelpCircle, Languages, Image as ImageIcon, History, Clock, FileText,
+  TrendingUp, Calculator, ChevronUp
 } from "lucide-react";
 
 /* ===========================================
@@ -237,7 +238,7 @@ const TableDetailModal = ({ tableNumber, orders, onClose, onCheckout, onAddOrder
   );
 };
 
-const ManageMenuModal = ({ onClose, menuData, onSave, onDelete, onToggleSoldOut, lang }) => {
+const ManageMenuModal = ({ onClose, menuData, onSave, onDelete, onToggleSoldOut, lang, onOpenCategories }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [name, setName] = useState("");
@@ -342,7 +343,10 @@ const ManageMenuModal = ({ onClose, menuData, onSave, onDelete, onToggleSoldOut,
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
         <div className="bg-gray-800 text-white p-4 flex justify-between items-center sticky top-0 z-10">
           <h3 className="font-black text-lg flex items-center"><Settings size={20} className="mr-2" />{t.manageMenu}</h3>
-          <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex justify-center items-center hover:bg-gray-700 rounded-full"><X size={24} /></button>
+          <div className="flex items-center gap-2">
+            <button onClick={onOpenCategories} className="text-xs bg-gray-700 px-3 py-1.5 rounded-lg font-black min-h-[36px]">カテゴリー設定</button>
+            <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex justify-center items-center hover:bg-gray-700 rounded-full"><X size={24} /></button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-gray-50">
           <form id="manage-form" onSubmit={handleSubmit} className="bg-white p-5 rounded-2xl border-2 border-blue-100 shadow-sm space-y-4">
@@ -841,10 +845,42 @@ const OrderView = ({ menuData, tableNumber, onBackToTables, onOrderSubmit, lang,
 };
 
 /* ===========================================
+   PAYMENT METHOD DIALOG（決済方法選択）
+   =========================================== */
+const PaymentMethodDialog = ({ tableNumber, total, onConfirm, onCancel }) => (
+  <div className="fixed inset-0 bg-black/70 z-[300] flex items-center justify-center p-4">
+    <div className="bg-white rounded-[2rem] p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <h3 className="font-black text-xl text-gray-800 text-center">決済方法</h3>
+      <p className="text-center font-bold text-gray-500">
+        Table {tableNumber} · <span className="text-orange-600 font-black">¥{total.toLocaleString()}</span>
+      </p>
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { key: "cash", label: "現金", icon: "💴" },
+          { key: "card", label: "カード", icon: "💳" },
+          { key: "qr",   label: "QR払い", icon: "📱" },
+        ].map(m => (
+          <button
+            key={m.key}
+            onClick={() => onConfirm(m.key)}
+            className="flex flex-col items-center justify-center py-5 bg-gray-50 rounded-2xl border-2 border-gray-100 active:bg-orange-50 active:border-orange-300 transition min-h-[88px]"
+          >
+            <span className="text-3xl mb-1">{m.icon}</span>
+            <span className="font-black text-sm text-gray-700">{m.label}</span>
+          </button>
+        ))}
+      </div>
+      <button onClick={onCancel} className="w-full py-3 bg-gray-100 text-gray-500 rounded-xl font-black text-sm min-h-[44px]">キャンセル</button>
+    </div>
+  </div>
+);
+
+/* ===========================================
    BILL VIEW（伝票管理 / スタッフ端末用）
    =========================================== */
 const BillView = ({ orders, onCheckoutTable }) => {
   const [entered, setEntered] = useState(new Set());
+  const [paymentDialog, setPaymentDialog] = useState(null);
 
   const tableGroups = useMemo(() => {
     const unpaid = orders.filter(o => !o.isPaid);
@@ -875,6 +911,14 @@ const BillView = ({ orders, onCheckoutTable }) => {
 
   return (
     <div className="h-full overflow-y-auto bg-gray-50 pb-8">
+      {paymentDialog && (
+        <PaymentMethodDialog
+          tableNumber={paymentDialog.tableNumber}
+          total={paymentDialog.total}
+          onConfirm={(method) => { onCheckoutTable(paymentDialog.tableNumber, method); setPaymentDialog(null); }}
+          onCancel={() => setPaymentDialog(null)}
+        />
+      )}
       <div className="sticky top-0 bg-white border-b px-4 py-3 z-10 shadow-sm">
         <div className="flex justify-between items-center">
           <h2 className="font-black text-lg text-gray-800 flex items-center">
@@ -926,7 +970,7 @@ const BillView = ({ orders, onCheckoutTable }) => {
                     <CheckCircle size={15} /> {isEntered ? '入力済み ✓' : 'レジ入力済み'}
                   </button>
                   <button
-                    onClick={() => onCheckoutTable(group.tableNumber)}
+                    onClick={() => setPaymentDialog({ tableNumber: group.tableNumber, total: group.total })}
                     className="flex-1 py-2.5 rounded-xl font-black text-sm bg-orange-500 text-white flex items-center justify-center gap-1.5 min-h-[44px] active:scale-95 transition"
                   >
                     <Receipt size={15} /> 会計完了
@@ -936,6 +980,470 @@ const BillView = ({ orders, onCheckoutTable }) => {
             );
           })
         )}
+      </div>
+    </div>
+  );
+};
+
+/* ===========================================
+   SALES ANALYTICS MODAL（売上・分析）
+   =========================================== */
+const SalesAnalyticsModal = ({ orders, onClose }) => {
+  const [tab, setTab] = useState("daily");
+
+  const paidOrders = useMemo(() => orders.filter(o => o.isPaid), [orders]);
+
+  const dailySales = useMemo(() => {
+    const map = {};
+    paidOrders.forEach(order => {
+      const d = new Date(order.createdAt);
+      const dateKey = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+      const label = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`;
+      if (!map[dateKey]) map[dateKey] = { dateKey, label, total: 0, count: 0 };
+      map[dateKey].total += order.totalAmount || 0;
+      map[dateKey].count += 1;
+    });
+    return Object.values(map).sort((a, b) => a.dateKey.localeCompare(b.dateKey)).slice(-30);
+  }, [paidOrders]);
+
+  const itemSales = useMemo(() => {
+    const map = {};
+    paidOrders.forEach(order => {
+      order.items?.forEach(item => {
+        const key = item.name + (item.optionLabel ? `_${item.optionLabel}` : '');
+        if (!map[key]) map[key] = { name: item.name, optionLabel: item.optionLabel || '', quantity: 0, total: 0 };
+        map[key].quantity += item.quantity;
+        map[key].total += (item.finalPrice || item.price || 0) * item.quantity;
+      });
+    });
+    return Object.values(map).sort((a, b) => b.total - a.total);
+  }, [paidOrders]);
+
+  const totalRevenue = paidOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+  const avgPerDay = dailySales.length > 0 ? Math.round(totalRevenue / dailySales.length) : 0;
+  const topItem = itemSales[0];
+  const maxDailyTotal = Math.max(...dailySales.map(d => d.total), 1);
+  const maxItemTotal = Math.max(...itemSales.map(i => i.total), 1);
+
+  return (
+    <div className="fixed inset-0 z-[200] bg-white flex flex-col">
+      <div className="bg-gray-800 text-white p-3 flex justify-between items-center">
+        <span className="font-black flex items-center gap-2 text-sm"><TrendingUp size={16} /> 売上・分析</span>
+        <button onClick={onClose} className="p-2 bg-gray-700 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center"><X size={18} /></button>
+      </div>
+      <div className="flex bg-gray-100 p-1 m-3 rounded-xl gap-1">
+        {[{ key: "daily", label: "日別売上" }, { key: "items", label: "商品別売上" }, { key: "analysis", label: "分析" }].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`flex-1 py-2.5 rounded-lg font-black text-sm min-h-[44px] transition ${tab === t.key ? "bg-white text-gray-800 shadow-sm" : "text-gray-400"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 pb-8">
+        {tab === "daily" && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-orange-50 rounded-2xl p-4">
+                <div className="text-xs text-gray-400 font-bold">累計売上</div>
+                <div className="font-black text-xl text-orange-600">¥{totalRevenue.toLocaleString()}</div>
+              </div>
+              <div className="bg-blue-50 rounded-2xl p-4">
+                <div className="text-xs text-gray-400 font-bold">1日平均</div>
+                <div className="font-black text-xl text-blue-600">¥{avgPerDay.toLocaleString()}</div>
+              </div>
+            </div>
+            {dailySales.length === 0 ? (
+              <div className="text-center text-gray-400 py-12 font-bold">会計済みデータがありません</div>
+            ) : (
+              [...dailySales].reverse().map(day => (
+                <div key={day.dateKey} className="bg-gray-50 rounded-xl p-3">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="font-black text-gray-700 text-sm">{day.label}</span>
+                    <div className="text-right">
+                      <span className="font-black text-orange-600 text-sm">¥{day.total.toLocaleString()}</span>
+                      <span className="text-xs text-gray-400 ml-2">{day.count}件</span>
+                    </div>
+                  </div>
+                  <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-orange-400 rounded-full transition-all" style={{ width: `${(day.total / maxDailyTotal * 100).toFixed(1)}%` }} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+        {tab === "items" && (
+          <div className="space-y-2">
+            {itemSales.length === 0 ? (
+              <div className="text-center text-gray-400 py-12 font-bold">会計済みデータがありません</div>
+            ) : (
+              itemSales.map((item, idx) => (
+                <div key={`${item.name}_${item.optionLabel}`} className="bg-gray-50 rounded-xl p-3">
+                  <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      <span className="text-xs font-black text-gray-300 w-5 text-right mt-0.5 flex-shrink-0">{idx + 1}</span>
+                      <div className="min-w-0">
+                        <div className="font-bold text-gray-700 text-sm leading-tight">{item.name}</div>
+                        {item.optionLabel && <div className="text-xs text-blue-500 font-black">{item.optionLabel}</div>}
+                      </div>
+                    </div>
+                    <div className="text-right ml-2 flex-shrink-0">
+                      <div className="font-black text-gray-800 text-sm">¥{item.total.toLocaleString()}</div>
+                      <div className="text-xs text-gray-400">{item.quantity}個</div>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-400 rounded-full" style={{ width: `${(item.total / maxItemTotal * 100).toFixed(1)}%` }} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+        {tab === "analysis" && (
+          <div className="space-y-3">
+            <div className="bg-orange-500 text-white rounded-2xl p-5">
+              <div className="text-xs font-bold opacity-70 mb-1">累計売上（会計済み）</div>
+              <div className="font-black text-3xl">¥{totalRevenue.toLocaleString()}</div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "営業日数",   value: `${dailySales.length}日`,  bg: "bg-blue-50",   text: "text-blue-600"   },
+                { label: "1日平均売上", value: `¥${avgPerDay.toLocaleString()}`, bg: "bg-green-50", text: "text-green-600" },
+                { label: "会計件数",   value: `${paidOrders.length}件`,  bg: "bg-purple-50", text: "text-purple-600" },
+                { label: "平均客単価", value: `¥${paidOrders.length > 0 ? Math.round(totalRevenue / paidOrders.length).toLocaleString() : 0}`, bg: "bg-yellow-50", text: "text-yellow-700" },
+              ].map(s => (
+                <div key={s.label} className={`rounded-2xl p-4 ${s.bg}`}>
+                  <div className="text-xs text-gray-400 font-bold mb-1">{s.label}</div>
+                  <div className={`font-black text-xl ${s.text}`}>{s.value}</div>
+                </div>
+              ))}
+            </div>
+            {topItem && (
+              <div className="bg-gray-800 text-white rounded-2xl p-4">
+                <div className="text-xs font-bold text-gray-400 mb-1">🏆 売上No.1商品</div>
+                <div className="font-black text-base">{topItem.name}</div>
+                <div className="text-orange-400 text-sm font-black mt-0.5">¥{topItem.total.toLocaleString()} · {topItem.quantity}個</div>
+              </div>
+            )}
+            {dailySales.length > 0 && (() => {
+              const best = [...dailySales].sort((a, b) => b.total - a.total)[0];
+              return (
+                <div className="bg-gray-800 text-white rounded-2xl p-4">
+                  <div className="text-xs font-bold text-gray-400 mb-1">🗓️ 最高売上日</div>
+                  <div className="font-black text-base">{best.label}</div>
+                  <div className="text-green-400 text-sm font-black mt-0.5">¥{best.total.toLocaleString()} · {best.count}件</div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ===========================================
+   CASH REGISTER MODAL（レジ点検・精算・履歴）
+   =========================================== */
+const DENOMINATIONS = [
+  { value: 10000, label: "10,000円" }, { value: 5000, label: "5,000円" },
+  { value: 1000,  label: "1,000円"  }, { value: 500,  label: "500円"   },
+  { value: 100,   label: "100円"    }, { value: 50,   label: "50円"    },
+  { value: 10,    label: "10円"     }, { value: 5,    label: "5円"     },
+  { value: 1,     label: "1円"      },
+];
+
+const CashRegisterModal = ({ orders, onClose }) => {
+  const [tab, setTab] = useState("check");
+  const [counts, setCounts] = useState({});
+  const [openingBalance, setOpeningBalance] = useState("");
+  const [note, setNote] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [settlements, setSettlements] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const todayStart = useMemo(() => {
+    const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }, []);
+
+  const todayOrders = useMemo(() =>
+    orders.filter(o => o.isPaid && o.createdAt >= todayStart), [orders, todayStart]);
+
+  const todayTotal = todayOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+
+  const paymentBreakdown = useMemo(() => {
+    const b = { cash: 0, card: 0, qr: 0, unknown: 0 };
+    todayOrders.forEach(o => { const pm = o.paymentMethod || "unknown"; b[pm] = (b[pm] || 0) + (o.totalAmount || 0); });
+    return b;
+  }, [todayOrders]);
+
+  const actualCash = DENOMINATIONS.reduce((s, d) => s + d.value * (parseInt(counts[d.value]) || 0), 0);
+  const openingNum = parseInt(openingBalance) || 0;
+  const cashSalesTotal = (paymentBreakdown.cash || 0) + (paymentBreakdown.unknown || 0);
+  const expectedCash = openingNum + cashSalesTotal;
+  const difference = actualCash - expectedCash;
+
+  useEffect(() => {
+    if (tab !== "history") return;
+    setLoadingHistory(true);
+    const q = query(collection(db, "settlements"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, snap => {
+      setSettlements(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoadingHistory(false);
+    }, () => setLoadingHistory(false));
+    return () => unsub();
+  }, [tab]);
+
+  const handleSave = async (type) => {
+    setIsSaving(true);
+    try {
+      await setDoc(doc(db, "settlements", `${type.toUpperCase()}_${Date.now()}`), {
+        type, createdAt: Date.now(), todayTotal, paymentBreakdown,
+        openingBalance: openingNum, actualCash, expectedCash, difference,
+        counts: { ...counts }, note: note.trim(), orderCount: todayOrders.length,
+      });
+      alert(type === "settlement" ? "✅ 精算を保存しました" : "✅ 点検結果を保存しました");
+      if (type === "settlement") { setCounts({}); setOpeningBalance(""); setNote(""); }
+    } catch (e) { alert("保存エラー: " + e.message); }
+    finally { setIsSaving(false); }
+  };
+
+  const DenominationInput = () => (
+    <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
+      <h4 className="font-black text-gray-700 text-sm mb-2">💴 現金計算</h4>
+      {DENOMINATIONS.map(d => (
+        <div key={d.value} className="flex items-center justify-between gap-2">
+          <span className="font-bold text-sm text-gray-500 w-20 text-right flex-shrink-0">{d.label}</span>
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setCounts(p => ({ ...p, [d.value]: Math.max(0,(parseInt(p[d.value])||0)-1) }))}
+              className="w-9 h-9 bg-gray-200 rounded-lg font-black text-sm flex items-center justify-center active:bg-gray-300">−</button>
+            <input type="number" min="0" value={counts[d.value] || ""} placeholder="0"
+              onChange={e => setCounts(p => ({ ...p, [d.value]: e.target.value }))}
+              className="w-14 border-2 border-gray-200 rounded-lg text-center font-black text-sm h-9" />
+            <button onClick={() => setCounts(p => ({ ...p, [d.value]: (parseInt(p[d.value])||0)+1 }))}
+              className="w-9 h-9 bg-gray-200 rounded-lg font-black text-sm flex items-center justify-center active:bg-gray-300">＋</button>
+            <span className="text-xs text-gray-400 font-bold w-16 text-right">
+              {(d.value*(parseInt(counts[d.value])||0)).toLocaleString()}円
+            </span>
+          </div>
+        </div>
+      ))}
+      <div className="border-t-2 border-gray-200 pt-3 flex justify-between items-center">
+        <span className="font-black text-gray-700 text-sm">現金合計</span>
+        <span className="font-black text-xl text-gray-800">¥{actualCash.toLocaleString()}</span>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 z-[200] bg-white flex flex-col">
+      <div className="bg-gray-800 text-white p-3 flex justify-between items-center">
+        <span className="font-black flex items-center gap-2 text-sm"><Calculator size={16} /> レジ点検・精算</span>
+        <button onClick={onClose} className="p-2 bg-gray-700 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center"><X size={18} /></button>
+      </div>
+      <div className="flex bg-gray-100 p-1 m-3 rounded-xl gap-1">
+        {[{ key: "check", label: "点検" }, { key: "settlement", label: "精算" }, { key: "history", label: "履歴" }].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`flex-1 py-2.5 rounded-lg font-black text-sm min-h-[44px] transition ${tab === t.key ? "bg-white text-gray-800 shadow-sm" : "text-gray-400"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-4">
+        {(tab === "check" || tab === "settlement") && (
+          <>
+            <div className={`rounded-2xl p-4 ${tab === "settlement" ? "bg-red-50 border-2 border-red-200" : "bg-orange-50"}`}>
+              <div className="text-xs text-gray-400 font-bold mb-1">本日の売上（会計済み）</div>
+              <div className="font-black text-3xl text-orange-600">¥{todayTotal.toLocaleString()}</div>
+              <div className="text-xs text-gray-400 mt-1">{todayOrders.length}件</div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { key: "cash",    label: "現金",   icon: "💴", bg: "bg-green-50",  text: "text-green-700"  },
+                { key: "card",    label: "カード", icon: "💳", bg: "bg-blue-50",   text: "text-blue-700"   },
+                { key: "qr",      label: "QR払い", icon: "📱", bg: "bg-purple-50", text: "text-purple-700" },
+              ].map(pm => (
+                <div key={pm.key} className={`rounded-xl p-3 ${pm.bg} text-center`}>
+                  <div className="text-lg mb-0.5">{pm.icon}</div>
+                  <div className={`font-black text-xs ${pm.text}`}>{pm.label}</div>
+                  <div className={`font-black text-sm ${pm.text}`}>¥{(paymentBreakdown[pm.key]||0).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+            <div>
+              <label className="text-xs font-black text-gray-400 block mb-1">釣り銭準備金（開始時の現金）</label>
+              <input type="number" className="w-full border-2 border-gray-200 rounded-xl p-3 font-bold"
+                placeholder="例：30000" value={openingBalance} onChange={e => setOpeningBalance(e.target.value)} />
+            </div>
+            <DenominationInput />
+            <div className="bg-gray-50 rounded-2xl p-4 space-y-2 border-2 border-gray-200">
+              <div className="flex justify-between text-sm font-bold text-gray-600">
+                <span>理論現金（準備金 + 現金売上）</span><span>¥{expectedCash.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm font-bold text-gray-600">
+                <span>実際現金（手計算）</span><span>¥{actualCash.toLocaleString()}</span>
+              </div>
+              <div className={`flex justify-between font-black text-lg pt-2 border-t-2 border-gray-200 ${difference === 0 ? 'text-green-600' : difference > 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                <span>差額</span>
+                <span>{difference >= 0 ? '+' : ''}¥{difference.toLocaleString()} {difference === 0 ? '✅' : difference > 0 ? '⬆️' : '⬇️'}</span>
+              </div>
+            </div>
+            <input className="w-full border-2 border-gray-200 rounded-xl p-3 font-bold text-sm"
+              placeholder="メモ（任意）" value={note} onChange={e => setNote(e.target.value)} />
+            <button onClick={() => {
+                if (tab === "settlement" && !window.confirm("精算を確定しますか？")) return;
+                handleSave(tab === "settlement" ? "settlement" : "check");
+              }}
+              disabled={isSaving}
+              className={`w-full py-4 rounded-xl font-black text-base min-h-[56px] active:scale-95 transition text-white ${tab === "settlement" ? "bg-red-600" : "bg-blue-600"} ${isSaving ? "opacity-60" : ""}`}>
+              {isSaving ? "保存中..." : tab === "settlement" ? "🔒 精算を確定・保存" : "✓ 点検結果を保存"}
+            </button>
+          </>
+        )}
+        {tab === "history" && (
+          <div className="space-y-3">
+            {loadingHistory ? (
+              <div className="text-center text-gray-400 py-12 font-bold">読み込み中...</div>
+            ) : settlements.length === 0 ? (
+              <div className="text-center text-gray-400 py-12 font-bold">履歴がありません</div>
+            ) : settlements.map(s => (
+              <div key={s.id} className={`rounded-2xl p-4 border-2 ${s.type === "settlement" ? "border-red-200 bg-red-50" : "border-blue-200 bg-blue-50"}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <span className={`text-xs font-black px-2 py-0.5 rounded-full ${s.type === "settlement" ? "bg-red-200 text-red-700" : "bg-blue-200 text-blue-700"}`}>
+                      {s.type === "settlement" ? "精算" : "点検"}
+                    </span>
+                    <div className="text-xs text-gray-400 font-bold mt-1">
+                      {new Date(s.createdAt).toLocaleString('ja-JP', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' })}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-black text-gray-800">売上 ¥{(s.todayTotal||0).toLocaleString()}</div>
+                    <div className={`text-sm font-black ${(s.difference||0)===0 ? 'text-green-600' : (s.difference||0)>0 ? 'text-blue-600' : 'text-red-600'}`}>
+                      差額: {(s.difference||0)>=0?'+':''}¥{(s.difference||0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-400">{s.orderCount}件</div>
+                  </div>
+                </div>
+                {s.note && <div className="text-xs text-gray-500 font-bold bg-white rounded-lg px-3 py-1.5">{s.note}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ===========================================
+   MANAGE CATEGORIES MODAL（カテゴリー設定）
+   =========================================== */
+const ManageCategoriesModal = ({ onClose, menuData }) => {
+  const [categories, setCategories] = useState([]);
+  const [newCatName, setNewCatName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "categories"), snap => {
+      if (snap.docs.length > 0) {
+        setCategories(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.sortOrder||99)-(b.sortOrder||99)));
+      } else {
+        setCategories(CATEGORY_ORDER.map((name, i) => ({ id: `cat_${i}`, name, sortOrder: i })));
+      }
+      setIsLoaded(true);
+    }, () => {
+      setCategories(CATEGORY_ORDER.map((name, i) => ({ id: `cat_${i}`, name, sortOrder: i })));
+      setIsLoaded(true);
+    });
+    return () => unsub();
+  }, []);
+
+  const handleAdd = async () => {
+    if (!newCatName.trim()) return;
+    setIsSaving(true);
+    try {
+      const id = `cat_${Date.now()}`;
+      await setDoc(doc(db, "categories", id), { name: newCatName.trim(), sortOrder: categories.length });
+      setNewCatName("");
+    } catch (e) { alert("追加エラー: " + e.message); }
+    finally { setIsSaving(false); }
+  };
+
+  const handleDelete = async (catId, catName) => {
+    if (menuData.some(m => m.category === catName)) {
+      alert(`「${catName}」は使用中の商品があります。\n先に商品のカテゴリーを変更してください。`); return;
+    }
+    if (!window.confirm(`「${catName}」を削除しますか？`)) return;
+    try { await deleteDoc(doc(db, "categories", catId)); }
+    catch (e) { alert("削除エラー: " + e.message); }
+  };
+
+  const handleMoveUp = async (idx) => {
+    if (idx === 0) return;
+    const a = categories[idx - 1], b = categories[idx];
+    try {
+      await updateDoc(doc(db, "categories", a.id), { sortOrder: b.sortOrder });
+      await updateDoc(doc(db, "categories", b.id), { sortOrder: a.sortOrder });
+    } catch (e) { alert("並び替えエラー: " + e.message); }
+  };
+
+  const handleSaveAll = async () => {
+    setIsSaving(true);
+    try {
+      for (let i = 0; i < categories.length; i++) {
+        await setDoc(doc(db, "categories", categories[i].id), { name: categories[i].name, sortOrder: i });
+      }
+      alert("✅ カテゴリーを保存しました");
+    } catch (e) { alert("保存エラー: " + e.message); }
+    finally { setIsSaving(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-md">
+      <div className="bg-white rounded-[2rem] w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+        <div className="bg-gray-800 text-white p-4 flex justify-between items-center">
+          <span className="font-black flex items-center gap-2 text-sm"><Settings size={18} /> カテゴリー設定</span>
+          <button onClick={onClose} className="p-2 bg-gray-700 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center"><X size={18} /></button>
+        </div>
+        <div className="p-4 border-b border-gray-100 bg-gray-50 flex gap-2">
+          <input className="flex-1 border-2 border-gray-200 rounded-xl p-3 font-bold text-sm"
+            placeholder="新しいカテゴリー名" value={newCatName}
+            onChange={e => setNewCatName(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleAdd()} />
+          <button onClick={handleAdd} disabled={isSaving || !newCatName.trim()}
+            className="px-4 bg-blue-600 text-white rounded-xl font-black text-sm min-h-[44px] active:scale-95 disabled:opacity-50">追加</button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {!isLoaded ? (
+            <div className="text-center text-gray-400 py-8 font-bold">読み込み中...</div>
+          ) : categories.map((cat, idx) => {
+            const count = menuData.filter(m => m.category === cat.name).length;
+            return (
+              <div key={cat.id} className="flex items-center gap-2 bg-gray-50 rounded-xl p-3 border-2 border-gray-100">
+                <button onClick={() => handleMoveUp(idx)} disabled={idx === 0}
+                  className="p-2 text-gray-400 disabled:opacity-20 min-w-[36px] min-h-[36px] flex items-center justify-center active:scale-95">
+                  <ChevronUp size={16} />
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-gray-800 text-sm truncate">{cat.name}</div>
+                  <div className="text-xs text-gray-400">{count}品</div>
+                </div>
+                <button onClick={() => handleDelete(cat.id, cat.name)}
+                  className="p-2 bg-red-50 text-red-400 rounded-lg min-w-[36px] min-h-[36px] flex items-center justify-center active:scale-95">
+                  <Trash size={14} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="p-4 border-t border-gray-100">
+          <button onClick={handleSaveAll} disabled={isSaving}
+            className="w-full py-3 bg-green-600 text-white rounded-xl font-black text-sm min-h-[44px] active:scale-95 disabled:opacity-60">
+            {isSaving ? "保存中..." : "✅ 並び順を保存"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1028,6 +1536,9 @@ export default function App() {
   const [showInvite, setShowInvite] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showBill, setShowBill] = useState(false);
+  const [showSales, setShowSales] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const [menuData, setMenuData] = useState(INITIAL_MENU_DATA);
   const [orders, setOrders] = useState([]);
   const [currentTable, setCurrentTable] = useState(null);
@@ -1105,10 +1616,12 @@ export default function App() {
       if (role !== "guest") setCurrentTable(null);
     } catch (e) { alert("注文エラー: " + e.message); }
   };
-  const handleCheckoutTable = async (num) => {
+  const handleCheckoutTable = async (num, paymentMethod = "unknown") => {
     try {
       const tableOrders = orders.filter(o => String(o.tableNumber) === String(num) && !o.isPaid);
-      for (const o of tableOrders) { await updateDoc(doc(db, "orders", o.id), { isPaid: true }); }
+      for (const o of tableOrders) {
+        await updateDoc(doc(db, "orders", o.id), { isPaid: true, paidAt: Date.now(), paymentMethod });
+      }
     } catch (e) { alert("会計エラー: " + e.message); }
   };
   const handleUpdateOrder = async (id, updates) => {
@@ -1190,9 +1703,12 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-white font-sans select-none">
-      {showManageMenu && <ManageMenuModal lang={lang} onClose={() => setShowManageMenu(false)} menuData={menuData} onSave={handleSaveMenuItem} onDelete={handleDeleteMenuItem} onToggleSoldOut={handleToggleSoldOut} />}
+      {showManageMenu && <ManageMenuModal lang={lang} onClose={() => setShowManageMenu(false)} menuData={menuData} onSave={handleSaveMenuItem} onDelete={handleDeleteMenuItem} onToggleSoldOut={handleToggleSoldOut} onOpenCategories={() => { setShowManageMenu(false); setShowCategories(true); }} />}
       {showInvite && role === "host" && <InviteModal lang={lang} onClose={() => setShowInvite(false)} />}
       {showHistory && role === "host" && <HistoryModal orders={orders} onClose={() => setShowHistory(false)} />}
+      {showSales && role === "host" && <SalesAnalyticsModal orders={orders} onClose={() => setShowSales(false)} />}
+      {showRegister && role === "host" && <CashRegisterModal orders={orders} onClose={() => setShowRegister(false)} />}
+      {showCategories && role === "host" && <ManageCategoriesModal menuData={menuData} onClose={() => setShowCategories(false)} />}
       {showBill && (
         <div className="fixed inset-0 z-[100] bg-white flex flex-col">
           <div className="bg-gray-800 text-white p-3 flex justify-between items-center sticky top-0">
@@ -1225,6 +1741,8 @@ export default function App() {
             </button>
             {role === "host" && (
               <>
+                <button onClick={() => setShowSales(true)} className="p-2 bg-teal-600 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center" title="売上・分析"><TrendingUp size={18} /></button>
+                <button onClick={() => setShowRegister(true)} className="p-2 bg-yellow-600 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center" title="レジ点検・精算"><Calculator size={18} /></button>
                 <button onClick={() => setShowInvite(true)} className="p-2 bg-gray-700 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center"><Link size={18} /></button>
                 <button onClick={() => setShowHistory(true)} className="p-2 bg-blue-700 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center"><History size={18} /></button>
                 <button onClick={() => setShowManageMenu(true)} className="p-2 bg-green-600 rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center shadow-lg"><Settings size={18} /></button>
